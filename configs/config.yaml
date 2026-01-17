@@ -1,0 +1,58 @@
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+artifacts:
+  dir: "artifacts"
+
+split:
+  method: "time"
+  id_col: "TransactionID"
+  time_col: "TransactionDT"
+  train_frac: 0.7
+  valid_frac: 0.15
+  test_frac: 0.15
+  seed: 42
+
+models:
+  run:
+    - "logit"
+    - "xgboost"
+    - "lightgbm"
+    - "torch_mlp"   # optional (keep if you plan to add PyTorch model)
+
+class_imbalance:
+  use_scale_pos_weight: true   # for xgboost/lightgbm
+  scale_pos_weight: null       # if null, compute from training labels
+
+xgboost:
+  params:
+    n_estimators: 5000
+    learning_rate: 0.05
+    max_depth: 6
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_lambda: 1.0
+    objective: "binary:logistic"
+    eval_metric: "aucpr"
+  early_stopping_rounds: 200
+
+lightgbm:
+  params:
+    n_estimators: 5000
+    learning_rate: 0.05
+    num_leaves: 64
+    min_data_in_leaf: 200
+    subsample: 0.8
+    colsample_bytree: 0.8
+    reg_lambda: 1.0
+    objective: "binary"
+    metric: "auc"
+  early_stopping_rounds: 200
+
+torch:
+  seed: 42
+  batch_size: 2048
+  epochs: 20
+  lr: 0.001
+  hidden_sizes: [256, 128]
+  dropout: 0.2

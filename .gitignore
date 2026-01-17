@@ -1,0 +1,23 @@
+# data & artifacts (do not commit)
+data/raw/
+data/interim/
+data/processed/
+artifacts/
+
+# python cache
+__pycache__/
+*.pyc
+
+# notebooks
+.ipynb_checkpoints/
+
+# IDE
+.idea/
+.vscode/
+
+# misc
+.DS_Store
+Thumbs.db
+
+# secrets
+*.env
