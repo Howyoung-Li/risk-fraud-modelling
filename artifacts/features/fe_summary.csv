@@ -1,0 +1,18 @@
+feature,definition
+TransactionAmt_to_mean_card1,TransactionAmt divided by TRAIN-only mean(TransactionAmt groupbed by card1)
+TransactionAmt_to_std_card1,TransactionAmt divided by TRAIN-only std(TransactionAmt groupbed by card1)
+TransactionAmt_log_to_mean_card1,TransactionAmt_log divided by TRAIN-only mean(TransactionAmt_log groupbed by card1)
+TransactionAmt_log_to_std_card1,TransactionAmt_log divided by TRAIN-only std(TransactionAmt_log groupbed by card1)
+TransactionAmt_card1_cnt,TRAIN-only transaction count grouped by card1
+TransactionAmt_to_mean_card4,TransactionAmt divided by TRAIN-only mean(TransactionAmt groupbed by card4)
+TransactionAmt_to_std_card4,TransactionAmt divided by TRAIN-only std(TransactionAmt groupbed by card4)
+TransactionAmt_log_to_mean_card4,TransactionAmt_log divided by TRAIN-only mean(TransactionAmt_log groupbed by card4)
+TransactionAmt_log_to_std_card4,TransactionAmt_log divided by TRAIN-only std(TransactionAmt_log groupbed by card4)
+TransactionAmt_card4_cnt,TRAIN-only transaction count grouped by card4
+TransactionAmt_to_mean_uid,TransactionAmt divided by TRAIN-only mean(TransactionAmt groupbed by uid)
+TransactionAmt_to_std_uid,TransactionAmt divided by TRAIN-only std(TransactionAmt groupbed by uid)
+TransactionAmt_log_to_mean_uid,TransactionAmt_log divided by TRAIN-only mean(TransactionAmt_log groupbed by uid)
+TransactionAmt_log_to_std_uid,TransactionAmt_log divided by TRAIN-only std(TransactionAmt_log groupbed by uid)
+TransactionAmt_uid_cnt,TRAIN-only transaction count grouped by uid_hash
+uid_hash,"hashed UID proxy from columns: ['card1', 'addr1', 'rel_day_bucket']"
+rel_day_bucket,"Bucketed (time_day - D1)/7, missing = -999"

@@ -2,7 +2,8 @@
 data/raw/
 data/interim/
 data/processed/
-artifacts/
+artifacts/outputs/
+artifacts/models/
 
 # python cache
 __pycache__/

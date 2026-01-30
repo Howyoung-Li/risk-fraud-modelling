@@ -1,0 +1,7 @@
+{
+  "capacity_threshold": 0.92612517,
+  "cost_opt_threshold": 0.0014944754052631584,
+  "capacity_review_percent": 1.0,
+  "selected_optimize": "expected_cost",
+  "selected_min_recall": null
+}

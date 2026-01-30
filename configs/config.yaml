@@ -1,6 +1,7 @@
 data:
   raw_dir: "data/raw"
   processed_dir: "data/processed"
+
 artifacts:
   dir: "artifacts"
 
@@ -8,51 +9,142 @@ split:
   method: "time"
   id_col: "TransactionID"
   time_col: "TransactionDT"
+  target_col: "isFraud"
   train_frac: 0.7
   valid_frac: 0.15
   test_frac: 0.15
   seed: 42
 
+  # CV settings (used by hyperparameter search)
+  cv_strategy: "time"   # recommended for this dataset
+  cv_folds: 5
+  cv_gap: 0             # optional gap between train/valid boundary (implementation-dependent)
+
+features:
+  reduce_memory: true
+  use_test_for_encoding: true
+  categorical_fill: "missing"
+  numeric_fill: "median"
+
 models:
   run:
-    - "logit"
+    # - "logit"
     - "xgboost"
+    # - "catboost"
     - "lightgbm"
-    - "torch_mlp"   # optional (keep if you plan to add PyTorch model)
+    # - "torch_mlp"
 
 class_imbalance:
-  use_scale_pos_weight: true   # for xgboost/lightgbm
-  scale_pos_weight: null       # if null, compute from training labels
+  use_scale_pos_weight: true
+  scale_pos_weight: null   # if null, compute from training labels
 
 xgboost:
+  # Base params always applied (grid will override any keys it includes)
   params:
-    n_estimators: 5000
-    learning_rate: 0.05
-    max_depth: 6
-    subsample: 0.8
-    colsample_bytree: 0.8
-    reg_lambda: 1.0
     objective: "binary:logistic"
     eval_metric: "aucpr"
-  early_stopping_rounds: 200
-
-lightgbm:
-  params:
-    n_estimators: 5000
-    learning_rate: 0.05
-    num_leaves: 64
-    min_data_in_leaf: 200
+    tree_method: "hist"
+    reg_lambda: 1.0
+    n_estimators: 5000        # can be overridden by grid if included there
+    learning_rate: 0.05       # can be overridden by grid if included there
+    max_depth: 6              # can be overridden by grid if included there
     subsample: 0.8
     colsample_bytree: 0.8
-    reg_lambda: 1.0
-    objective: "binary"
-    metric: "auc"
   early_stopping_rounds: 200
 
-torch:
-  seed: 42
-  batch_size: 2048
-  epochs: 20
-  lr: 0.001
-  hidden_sizes: [256, 128]
-  dropout: 0.2
+  # NEW: hyperparameter search
+  search:
+    enabled: true
+    method: "grid"            # "grid" or "random"
+    scoring: "average_precision"  # PR-AUC in sklearn
+    n_jobs: -1
+    param_grid:
+      max_depth: [4, 6]
+      min_child_weight: [1, 5]
+      subsample: [0.8, 1.0]
+      colsample_bytree: [0.8, 1.0]
+
+lightgbm:
+  # Base params always applied (grid will override any keys it includes)
+  params:
+    objective: "binary"
+    metric: "average_precision"
+    reg_lambda: 1.0
+    n_estimators: 5000        # can be overridden by grid if included there
+    learning_rate: 0.05       # can be overridden by grid if included there
+    num_leaves: 64            # can be overridden by grid if included there
+    min_data_in_leaf: 200     # can be overridden by grid if included there
+    subsample: 0.8
+    colsample_bytree: 0.8
+  early_stopping_rounds: 200
+
+  # NEW: hyperparameter search
+  search:
+    enabled: true
+    method: "grid"
+    scoring: "average_precision"
+    n_jobs: -1
+    param_grid:
+      num_leaves: [31, 63]
+      min_data_in_leaf: [100, 300]
+      subsample: [0.8, 1.0]
+      colsample_bytree: [0.8, 1.0]
+
+catboost:
+  params:
+    loss_function: "Logloss"
+    eval_metric: "PRAUC"
+    iterations: 5000
+    learning_rate: 0.05
+    depth: 6
+    l2_leaf_reg: 3
+    subsample: 0.8
+    random_seed: 42
+    verbose: 100
+  early_stopping_rounds: 200
+
+#torch:
+ # seed: 42
+ # batch_size: 2048
+ # epochs: 20
+ # lr: 0.001
+  #hidden_sizes: [256, 128]
+  #dropout: 0.2
+  #search:
+   # enabled: true
+    #method: "grid"
+    #scoring: "average_precision"
+    #param_grid:
+     # hidden_sizes: [[256, 128], [512, 256]]
+      #dropout: [0.1, 0.2]
+      #lr: [0.001, 0.0005]
+
+evaluation:
+  topk_percents: [0.1, 0.5, 1, 3, 5, 10]
+  make_calibration: true
+  calibration_bins: 20
+  amount_col: "TransactionAmt"
+
+
+explain:
+  model_name: "lightgbm"
+  shap_sample_size: 2000
+  local_cases: 8
+  reason_codes_top_n: 5
+  random_seed: 42
+
+policy:
+  review_capacity_percent: 1.0
+  fp_cost: 10.0
+  fn_cost_multiplier: 1.0
+  optimize: "expected_cost" # or constraint_recall
+  min_recall: 0.60 # use if optimze = contraint_recall
+  threshold_grid_size: 400
+
+monitoring:
+  psi_threshold: 0.25
+  drift_windows_days: [7, 14, 30]
+  score_shift_alert: true
+  top_features_for_psi: 30
+  
+

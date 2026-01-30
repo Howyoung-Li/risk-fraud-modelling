@@ -1,0 +1,15 @@
+{
+  "reference_window": {
+    "start_day": 152,
+    "end_day": 182,
+    "n": 85827
+  },
+  "psi_threshold": 0.25,
+  "window_days": [
+    7,
+    14,
+    30
+  ],
+  "top_features_for_psi": 30,
+  "notes": "PSI computed using quantile bins from reference distribution."
+}

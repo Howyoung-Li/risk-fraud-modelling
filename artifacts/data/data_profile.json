@@ -1,0 +1,12 @@
+{
+  "train_transaction_rows": 590540,
+  "train_identity_rows": 144233,
+  "fraud_rate": 0.03499000914417313,
+  "transactionDT_min": 86400,
+  "transactionDT_max": 15811131,
+  "optional_files_found": [
+    "test_transaction.csv",
+    "test_identity.csv",
+    "sample_submission.csv"
+  ]
+}

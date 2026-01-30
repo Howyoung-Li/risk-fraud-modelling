@@ -1,0 +1,7 @@
+{
+  "model_name": "lightgbm",
+  "shap_sample_size": 2000,
+  "local_cases": 16,
+  "topn_reason_codes": 5,
+  "n_features": 494
+}
