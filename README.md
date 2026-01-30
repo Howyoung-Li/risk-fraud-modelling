@@ -1,3 +1,4 @@
+[English Version → README_EN.md](README_EN.md)
 # IEEE-CIS 反欺诈风控建模项目（End-to-End Risk Modelling Pipeline）
 
 目标：基于 IEEE-CIS Fraud Detection 数据（Transaction + Identity 表）搭建一套 **可复现、可解释、可落地** 的风控建模流水线，输出业务侧可直接使用的指标、策略模拟与监控包。
