@@ -1,46 +1,67 @@
-# Risk Fraud Modelling (End-to-End)
+# Risk Fraud Modelling (IEEE-CIS) — 风控建模项目
 
-End-to-end e-commerce fraud risk modelling pipeline (feature engineering, leakage-aware split, XGBoost baseline, evaluation, SHAP explainability).
+## Overview
+End-to-end fraud risk modelling pipeline on the IEEE-CIS Fraud Detection dataset (transaction + identity tables).
+Focus: leakage-aware time split, industry metrics (PR-AUC / Recall@TopK), policy simulation, monitoring pack, and explainability (SHAP + reason codes).
 
-## Quickstart
+## Key Results (Out-of-time holdout)
+**Champion model:** LightGBM (CPU)
 
+| Split | PR-AUC | ROC-AUC | KS |
+|------|--------|---------|----|
+| Valid | 0.xxx | 0.xxx | 0.xxx |
+| Test  | 0.573 | 0.898 | 0.646 |
+
+**Review-capacity performance (Test):**
+- Top 0.5%: Precision ~0.94, Recall ~0.135  
+- Top 1%: Precision ~0.90, Recall ~0.259  
+- Top 3%: Precision ~0.61, Recall ~0.526  
+
+(From `artifacts/metrics/topk_table.csv`)
+
+## Plots
+PR Curve (Test)  
+![](artifacts/plots/pr_curve_lightgbm_test.png)
+
+Top-K Capture (Test)  
+![](artifacts/plots/topk_capture_lightgbm_test.png)
+
+Lift Curve (Test)  
+![](artifacts/plots/lift_curve_lightgbm_test.png)
+
+SHAP Summary  
+![](artifacts/shap/shap_summary.png)
+
+## Policy Simulation (Risk Strategy)
+Simulated review capacity and cost trade-offs:
+- outputs: `artifacts/policy/policy_tradeoff_table.csv`, `threshold.json`
+- plots: `artifacts/policy/cost_vs_threshold.png`, `cost_vs_review.png`
+
+![](artifacts/policy/cost_vs_threshold.png)
+
+## Monitoring Pack
+Drift monitoring via PSI + score distribution drift:
+- `artifacts/monitoring/psi_report.csv`
+- `artifacts/plots/psi_top_features.png`
+- `artifacts/plots/score_drift.png`
+
+![](artifacts/plots/score_drift.png)
+
+## Repo Structure
+- `src/`: pipeline scripts
+- `configs/`: config.yaml
+- `artifacts/`: metrics, plots, policy, monitoring outputs (curated)
+
+## Reproducibility (One-command steps)
 ```bash
 conda env create -f environment.yml
 conda activate riskmodel
 
 python -m src.00_check_data
-python -m src.01_build_features
-python -m src.03_train_gbdt
+python -m src.01_make_dataset
+python -m src.02_feature_engineering
+python -m src.03_train_models
 python -m src.04_evaluate
-```
-## Data Dictionary
-
-### Transaction Table
-
-- **TransactionDT**: Time delta from a given reference datetime (i.e., *not* an actual timestamp).
-- **TransactionAMT**: Transaction payment amount (USD).
-- **ProductCD**: Product code; identifies the product associated with each transaction.
-- **card1 – card6**: Payment card attributes (e.g., card type, card category, issuing bank, country, etc.).
-- **addr**: Address-related fields.
-- **dist**: Distance-related feature(s).
-- **P_emaildomain / R_emaildomain**: Purchaser and recipient email domains.
-- **C1 – C14**: Counting features (e.g., number of addresses associated with the payment card). Exact meanings are masked.
-- **D1 – D15**: Time delta features (e.g., days since a previous transaction). Exact meanings are masked.
-- **M1 – M9**: Match indicators (e.g., consistency between name/address/card information). Exact meanings are masked.
-- **Vxxx**: Vesta-engineered rich features, including ranking, counting, and other entity relationship signals.
-
-**Categorical Features (Transaction Table):**  
-`ProductCD`, `card1 – card6`, `addr1`, `addr2`, `P_emaildomain`, `R_emaildomain`, `M1 – M9`
-
----
-
-### Identity Table
-
-Variables in this table capture identity and network/digital signature information associated with transactions. This includes:
-- Network connection information (e.g., IP, ISP, proxy)
-- Digital signature information (e.g., user agent, browser/OS/version)
-
-These variables are collected by Vesta’s fraud protection system and digital security partners. Field names are masked, and a pairwise dictionary is not provided due to privacy protection and contractual constraints.
-
-**Categorical Features (Identity Table):**  
-`DeviceType`, `DeviceInfo`, `id_12 – id_38`
+python -m src.05_explain_shap
+python -m src.06_policy_simulation
+python -m src.07_monitoring_pack
