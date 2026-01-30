@@ -91,7 +91,7 @@ python -m src.07_monitoring_pack
 | 5% | 0.4172 | 0.5994 |
 | 10% | 0.2436 | 0.7000 |
 
-业务解读（面试可直接讲）：
+业务解读：
 - 若每天只能人工审核 **1% 订单**：可捕获约 **26% 欺诈**，且拦截样本中约 **90% 为欺诈**（高精度）。
 - 若扩大到 **3% 审核产能**：可捕获约 **53% 欺诈**，精度约 **61%**，召回提升明显。
 
@@ -108,7 +108,7 @@ TopK 捕获曲线（LightGBM Test）
 Lift 曲线（LightGBM Test）  
 ![](artifacts/plots/lift_curve_lightgbm_test.png)
 
-（可选）Calibration（LightGBM Test）  
+Calibration（LightGBM Test）  
 ![](artifacts/plots/calibration_lightgbm_test.png)
 
 ---
@@ -146,7 +146,7 @@ SHAP Summary
 
 ## 9. 监控包（Monitoring Pack）：PSI + Score Drift
 
-提供上线监控资产（可用于周/月巡检）：
+提供上线监控资产（周/月巡检）：
 - `artifacts/monitoring/psi_report.csv`
 - `artifacts/plots/psi_top_features.png`
 - `artifacts/monitoring/score_drift.csv`
