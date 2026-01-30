@@ -1,6 +1,6 @@
 # IEEE-CIS 反欺诈风控建模项目（End-to-End Risk Modelling Pipeline）
 
-目标：基于 IEEE-CIS Fraud Detection 数据（Transaction + Identity 表）搭建一套 **可复现、可解释、可落地** 的风控建模流水线，输出业务侧可直接使用的指标、策略模拟与监控包，面向 **反欺诈/风控算法/信用模型/策略算法** 岗位。
+目标：基于 IEEE-CIS Fraud Detection 数据（Transaction + Identity 表）搭建一套 **可复现、可解释、可落地** 的风控建模流水线，输出业务侧可直接使用的指标、策略模拟与监控包。
 
 ---
 
@@ -31,6 +31,7 @@ python -m src.04_evaluate
 python -m src.05_explain_shap
 python -m src.06_policy_simulation
 python -m src.07_monitoring_pack
+```
 
 
 ## 3. 验证方式：Leakage-aware 时间切分（OOT）
