@@ -21,6 +21,7 @@
 - 数据结构：`train_transaction` + `train_identity` 以 `TransactionID` 左连接构建建模宽表
 - 特征维度：特征工程后宽表约 **498 列**；训练时使用约 **494 个特征**（剔除 ID/时间/标签等字段）
 - 缺失特点：identity 相关字段缺失显著；采用统一缺失处理 + 树模型对缺失的鲁棒性，并对类别特征做稳定编码
+- 官方数据描述：https://www.kaggle.com/competitions/ieee-fraud-detection/data
 
 ## 数据说明与隐私（脱敏）
 - IEEE-CIS 数据为竞赛公开数据，字段已做匿名化/脱敏处理（无可直接识别个人身份的信息）。建模重点在于从匿名特征中学习交易风险模式，而非识别真实身份。
