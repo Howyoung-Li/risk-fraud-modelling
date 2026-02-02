@@ -1,5 +1,5 @@
 [English Version → README_EN.md](README_EN.md)
-# IEEE-CIS 反欺诈风控建模项目（End-to-End Risk Modelling Pipeline）
+# IEEE-CIS 反欺诈风控建模项目
 
 目标：基于 IEEE-CIS Fraud Detection 数据（Transaction + Identity 表）搭建一套 **可复现、可解释、可落地** 的风控建模流水线，输出业务侧可直接使用的指标、策略模拟与监控包。
 
@@ -15,7 +15,7 @@
 
 ---
 
-## 数据概览（Data Snapshot）
+## 数据概览
 - 样本量：590,540 笔交易（`train_transaction`），Identity 表 144,233 行（`train_identity`）
 - 标签分布：欺诈率（`isFraud`）= **3.499%**
 - 时间跨度：`TransactionDT` ∈ [86,400, 15,811,131] (秒级数据)；并构造 `time_day` 作为按天粒度的时间索引，用于 OOT 时间切分
@@ -27,7 +27,7 @@
 ## 数据说明与隐私（脱敏）
 - IEEE-CIS 数据为竞赛公开数据，字段已做匿名化/脱敏处理（无可直接识别个人身份的信息）。建模重点在于从匿名特征中学习交易风险模式，而非识别真实身份。
 
-## UID 构造与聚合特征（entity-level features）
+## UID 构造与聚合特征
 为模拟风控中“同一实体（用户/设备/账户）”的历史行为特征，本项目基于多列信息构造匿名实体标识 `uid_hash`（对若干稳定字段拼接后做哈希），并在时间切分框架下生成如下聚合特征以提升预测能力：
 
 - `uid_cnt`：该 uid 出现次数（历史活跃度/重复交易强度）
@@ -44,7 +44,7 @@
 - 配置文件：`configs/config.yaml`
 - Kaggle 原始数据未上传 GitHub：复现需要自行放入 `data/raw/`
 
-### 一键运行（从 repo 根目录）
+### 一键运行
 ```bash
 conda env create -f environment.yml
 conda activate riskmodel
@@ -71,7 +71,7 @@ python -m src.07_monitoring_pack
 
 ---
 
-## 4. 模型表现（Base Models + Stacking）
+## 4. 模型表现
 
 ### 4.1 Base Models：LightGBM vs XGBoost（Valid / Test）
 
@@ -104,7 +104,7 @@ python -m src.07_monitoring_pack
 
 ---
 
-## 5. 业务指标：审核产能视角（Precision@TopK / Recall@TopK）
+## 5. 业务指标：（Precision@TopK / Recall@TopK）
 
 以下为 **Test 集**：
 
@@ -152,7 +152,7 @@ SHAP Summary
 
 ---
 
-## 8. 策略模拟（Policy Simulation）：阈值、成本、审核率权衡
+## 8. 策略模拟：阈值、成本、审核率权衡
 
 将模型分数落地为策略：扫描阈值/审核比例，计算 期望成本（FP 摩擦成本 + FN 金额损失），输出策略推荐表与阈值文件。
 
@@ -170,7 +170,7 @@ SHAP Summary
 
 ---
 
-## 9. 监控包（Monitoring Pack）：PSI + Score Drift
+## 9. 监控包：PSI + Score Drift
 
 提供上线监控资产（周/月巡检）：
 - `artifacts/monitoring/psi_report.csv`
