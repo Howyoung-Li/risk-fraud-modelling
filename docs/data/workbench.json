@@ -12,6 +12,66 @@
       "evidence": [
         "artifacts/metrics/holdout_metrics.json",
         "artifacts/metrics/topk_table.csv"
+      ],
+      "trace": [
+        {
+          "step": "receive_question",
+          "detail": "What is the OOT model performance?"
+        },
+        {
+          "step": "route_intent",
+          "detail": "model_performance"
+        },
+        {
+          "step": "call_tool",
+          "detail": "model_performance"
+        },
+        {
+          "step": "collect_evidence",
+          "detail": [
+            "artifacts/metrics/holdout_metrics.json",
+            "artifacts/metrics/topk_table.csv"
+          ]
+        },
+        {
+          "step": "compose_answer",
+          "detail": "evidence-bound summary"
+        }
+      ]
+    },
+    {
+      "question": "At top 1% review capacity, what are precision and recall?",
+      "intent": "review_capacity",
+      "answer": "At top 1.0% manual review capacity, precision is 91.31% and recall is 26.24%.\nEvidence: artifacts/metrics/topk_table.csv",
+      "tools_called": [
+        "review_capacity"
+      ],
+      "evidence": [
+        "artifacts/metrics/topk_table.csv"
+      ],
+      "trace": [
+        {
+          "step": "receive_question",
+          "detail": "At top 1% review capacity, what are precision and recall?"
+        },
+        {
+          "step": "route_intent",
+          "detail": "review_capacity"
+        },
+        {
+          "step": "call_tool",
+          "detail": "review_capacity"
+        },
+        {
+          "step": "collect_evidence",
+          "detail": [
+            "artifacts/metrics/topk_table.csv"
+          ]
+        },
+        {
+          "step": "compose_answer",
+          "detail": "evidence-bound summary"
+        }
       ]
     },
     {
@@ -25,6 +85,32 @@
         "artifacts/policy/policy_tradeoff_table.csv",
         "artifacts/policy/decision_policy_summary.csv",
         "artifacts/policy/threshold.json"
+      ],
+      "trace": [
+        {
+          "step": "receive_question",
+          "detail": "How should we set review and decline thresholds?"
+        },
+        {
+          "step": "route_intent",
+          "detail": "policy_simulation"
+        },
+        {
+          "step": "call_tool",
+          "detail": "policy_simulation"
+        },
+        {
+          "step": "collect_evidence",
+          "detail": [
+            "artifacts/policy/policy_tradeoff_table.csv",
+            "artifacts/policy/decision_policy_summary.csv",
+            "artifacts/policy/threshold.json"
+          ]
+        },
+        {
+          "step": "compose_answer",
+          "detail": "evidence-bound summary"
+        }
       ]
     },
     {
@@ -36,6 +122,30 @@
       ],
       "evidence": [
         "artifacts/outputs/reason_codes_sample.csv"
+      ],
+      "trace": [
+        {
+          "step": "receive_question",
+          "detail": "Explain transaction 3402093 with reason codes."
+        },
+        {
+          "step": "route_intent",
+          "detail": "explain_case"
+        },
+        {
+          "step": "call_tool",
+          "detail": "explain_case"
+        },
+        {
+          "step": "collect_evidence",
+          "detail": [
+            "artifacts/outputs/reason_codes_sample.csv"
+          ]
+        },
+        {
+          "step": "compose_answer",
+          "detail": "evidence-bound summary"
+        }
       ]
     },
     {
@@ -48,6 +158,31 @@
       "evidence": [
         "artifacts/monitoring/psi_report.csv",
         "artifacts/monitoring/score_drift.csv"
+      ],
+      "trace": [
+        {
+          "step": "receive_question",
+          "detail": "Is there any PSI or score drift alert?"
+        },
+        {
+          "step": "route_intent",
+          "detail": "monitor_drift"
+        },
+        {
+          "step": "call_tool",
+          "detail": "monitor_drift"
+        },
+        {
+          "step": "collect_evidence",
+          "detail": [
+            "artifacts/monitoring/psi_report.csv",
+            "artifacts/monitoring/score_drift.csv"
+          ]
+        },
+        {
+          "step": "compose_answer",
+          "detail": "evidence-bound summary"
+        }
       ]
     },
     {
@@ -66,12 +201,43 @@
         "artifacts/policy/decision_policy_summary.csv",
         "artifacts/policy/policy_tradeoff_table.csv",
         "artifacts/policy/threshold.json"
+      ],
+      "trace": [
+        {
+          "step": "receive_question",
+          "detail": "Generate a concise risk monitoring report."
+        },
+        {
+          "step": "route_intent",
+          "detail": "generate_risk_brief"
+        },
+        {
+          "step": "call_tool",
+          "detail": "generate_risk_brief"
+        },
+        {
+          "step": "collect_evidence",
+          "detail": [
+            "artifacts/metrics/holdout_metrics.json",
+            "artifacts/metrics/topk_table.csv",
+            "artifacts/monitoring/psi_report.csv",
+            "artifacts/monitoring/score_drift.csv",
+            "artifacts/outputs/reason_codes_sample.csv",
+            "artifacts/policy/decision_policy_summary.csv",
+            "artifacts/policy/policy_tradeoff_table.csv",
+            "artifacts/policy/threshold.json"
+          ]
+        },
+        {
+          "step": "compose_answer",
+          "detail": "evidence-bound summary"
+        }
       ]
     }
   ],
   "eval": {
-    "total_cases": 5,
-    "passed_cases": 5,
+    "total_cases": 9,
+    "passed_cases": 9,
     "pass_rate": 1.0,
     "cases": [
       {
@@ -106,8 +272,50 @@
         "passed": true
       },
       {
+        "name": "review_capacity_top_1",
+        "question": "At top 1% review capacity, what are precision and recall?",
+        "expected_intent": "review_capacity",
+        "required_evidence": "topk_table.csv",
+        "actual_intent": "review_capacity",
+        "tools_called": [
+          "review_capacity"
+        ],
+        "evidence": [
+          "artifacts/metrics/topk_table.csv"
+        ],
+        "passed": true
+      },
+      {
+        "name": "review_capacity_chinese",
+        "question": "如果只审核 top 3% 交易，召回和命中率是多少？",
+        "expected_intent": "review_capacity",
+        "required_evidence": "topk_table.csv",
+        "actual_intent": "review_capacity",
+        "tools_called": [
+          "review_capacity"
+        ],
+        "evidence": [
+          "artifacts/metrics/topk_table.csv"
+        ],
+        "passed": true
+      },
+      {
         "name": "case_explanation",
         "question": "Explain transaction 3402093 with reason codes.",
+        "expected_intent": "explain_case",
+        "required_evidence": "reason_codes_sample.csv",
+        "actual_intent": "explain_case",
+        "tools_called": [
+          "explain_case"
+        ],
+        "evidence": [
+          "artifacts/outputs/reason_codes_sample.csv"
+        ],
+        "passed": true
+      },
+      {
+        "name": "case_explanation_chinese",
+        "question": "解释一下交易 3402093 的风险原因码",
         "expected_intent": "explain_case",
         "required_evidence": "reason_codes_sample.csv",
         "actual_intent": "explain_case",
@@ -124,6 +332,21 @@
         "question": "Is there any PSI or score drift alert?",
         "expected_intent": "monitor_drift",
         "required_evidence": "psi_report.csv",
+        "actual_intent": "monitor_drift",
+        "tools_called": [
+          "monitor_drift"
+        ],
+        "evidence": [
+          "artifacts/monitoring/psi_report.csv",
+          "artifacts/monitoring/score_drift.csv"
+        ],
+        "passed": true
+      },
+      {
+        "name": "drift_monitoring_chinese",
+        "question": "模型最近有没有漂移或者 PSI 告警？",
+        "expected_intent": "monitor_drift",
+        "required_evidence": "score_drift.csv",
         "actual_intent": "monitor_drift",
         "tools_called": [
           "monitor_drift"

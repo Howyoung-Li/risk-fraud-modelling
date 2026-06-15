@@ -13,6 +13,7 @@
       <h1>Fraud Risk Agent Workbench</h1>
     </div>
     <nav>
+      <a href="#ask">Ask</a>
       <a href="#agent">Agent</a>
       <a href="#evidence">Evidence</a>
       <a href="#eval">Harness</a>
@@ -31,6 +32,14 @@
       </div>
     </section>
 
+    <section class="ask-panel" id="ask">
+      <form id="ask-form">
+        <input id="agent-question" name="question" type="text" value="At top 1% review capacity, what are precision and recall?" autocomplete="off">
+        <button type="submit">Ask Agent</button>
+      </form>
+      <div id="agent-live-result" class="live-result"></div>
+    </section>
+
     <section class="metrics-grid" id="agent"></section>
 
     <section class="section-head">
@@ -40,6 +49,8 @@
       </div>
     </section>
     <section class="flow" id="flow"></section>
+
+    <section class="trace-panel" id="trace-panel"></section>
 
     <section class="section-head" id="evidence">
       <div>

@@ -15,6 +15,7 @@ class RiskAgentResponse:
 	tools_called: list[str]
 	evidence: list[str]
 	data: dict[str, Any]
+	trace: list[dict[str, Any]]
 
 
 class RiskAgent:
@@ -27,6 +28,13 @@ class RiskAgent:
 		intent = self._route(question)
 		result = self._call_tool(intent, question)
 		answer = self._format_answer(question, result)
+		trace = [
+			{"step": "receive_question", "detail": question},
+			{"step": "route_intent", "detail": intent},
+			{"step": "call_tool", "detail": result.name},
+			{"step": "collect_evidence", "detail": result.evidence},
+			{"step": "compose_answer", "detail": "evidence-bound summary"},
+		]
 		return RiskAgentResponse(
 			question=question,
 			intent=intent,
@@ -34,6 +42,7 @@ class RiskAgent:
 			tools_called=[result.name],
 			evidence=result.evidence,
 			data=result.data,
+			trace=trace,
 		)
 
 	def _route(self, question: str) -> str:
@@ -44,6 +53,8 @@ class RiskAgent:
 			return "explain_case"
 		if any(token in q for token in ["psi", "drift", "monitor", "监控", "漂移", "稳定"]):
 			return "monitor_drift"
+		if any(token in q for token in ["top-k", "topk", "precision", "recall", "capacity", "产能", "召回", "命中"]):
+			return "review_capacity"
 		if any(token in q for token in ["policy", "threshold", "cost", "decline", "review", "策略", "阈值", "审核", "成本"]):
 			return "policy_simulation"
 		return "model_performance"
@@ -55,6 +66,10 @@ class RiskAgent:
 			return self.tools.explain_case(transaction_id)
 		if intent == "monitor_drift":
 			return self.tools.monitor_drift()
+		if intent == "review_capacity":
+			matched = re.search(r"(\d+(?:\.\d+)?)\s*%", question)
+			percent = float(matched.group(1)) if matched else 1.0
+			return self.tools.review_capacity(percent)
 		if intent == "policy_simulation":
 			return self.tools.policy_simulation()
 		if intent == "generate_risk_brief":

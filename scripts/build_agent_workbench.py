@@ -57,6 +57,7 @@ def serialize_response(response) -> dict:
 		"answer": response.answer,
 		"tools_called": response.tools_called,
 		"evidence": response.evidence,
+		"trace": response.trace,
 	}
 
 
@@ -65,6 +66,7 @@ def main() -> None:
 	agent = RiskAgent()
 	questions = [
 		"What is the OOT model performance?",
+		"At top 1% review capacity, what are precision and recall?",
 		"How should we set review and decline thresholds?",
 		"Explain transaction 3402093 with reason codes.",
 		"Is there any PSI or score drift alert?",

@@ -12,6 +12,15 @@ function evidenceTags(items) {
   return `<div class="tags">${items.map(item => `<span class="tag">${item}</span>`).join("")}</div>`;
 }
 
+function traceList(items) {
+  return `<ol class="trace-list">${items.map(item => `
+    <li>
+      <span>${item.step.replaceAll("_", " ")}</span>
+      <strong>${Array.isArray(item.detail) ? item.detail.join(", ") : item.detail}</strong>
+    </li>
+  `).join("")}</ol>`;
+}
+
 function renderStatus(data) {
   const panel = document.querySelector("#status-panel");
   const passRate = Math.round((data.eval.pass_rate || 0) * 100);
@@ -31,6 +40,18 @@ function renderAgentCards(data) {
       ${evidenceTags(response.evidence)}
     </article>
   `).join("");
+}
+
+function renderTrace(data) {
+  const panel = document.querySelector("#trace-panel");
+  const response = data.agent_responses[0];
+  panel.innerHTML = `
+    <article class="trace-card">
+      <p class="eyebrow">Trace</p>
+      <h2>Observable agent steps</h2>
+      ${traceList(response.trace)}
+    </article>
+  `;
 }
 
 function renderFlow(data) {
@@ -65,6 +86,46 @@ function renderEval(data) {
   `).join("");
 }
 
+async function askLiveAgent(question) {
+  const payload = await loadJson(`/api/agent?question=${encodeURIComponent(question)}`);
+  if (payload.error) {
+    throw new Error(payload.error);
+  }
+  return payload;
+}
+
+function renderLiveResponse(response) {
+  const target = document.querySelector("#agent-live-result");
+  target.innerHTML = `
+    <article class="metric-card live-card">
+      <p class="eyebrow">${response.intent.replaceAll("_", " ")}</p>
+      <h3>${response.question}</h3>
+      <p>${response.answer.split("Evidence:")[0]}</p>
+      ${evidenceTags(response.evidence)}
+      ${traceList(response.trace)}
+    </article>
+  `;
+}
+
+function bindAskForm() {
+  const form = document.querySelector("#ask-form");
+  const input = document.querySelector("#agent-question");
+  const target = document.querySelector("#agent-live-result");
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    const question = input.value.trim();
+    if (!question) {
+      return;
+    }
+    target.innerHTML = `<div class="inline-status">Running...</div>`;
+    try {
+      renderLiveResponse(await askLiveAgent(question));
+    } catch (error) {
+      target.innerHTML = `<div class="inline-status">Local API unavailable. Static evidence remains below.</div>`;
+    }
+  });
+}
+
 function loadJson(url) {
   if (typeof fetch === "function") {
     return fetch(url).then(response => response.json());
@@ -88,9 +149,11 @@ async function boot() {
   const data = await loadJson("data/workbench.json");
   renderStatus(data);
   renderAgentCards(data);
+  renderTrace(data);
   renderFlow(data);
   renderCharts(data);
   renderEval(data);
+  bindAskForm();
 }
 
 boot().catch(error => {

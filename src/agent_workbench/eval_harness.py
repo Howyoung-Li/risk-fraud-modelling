@@ -28,8 +28,26 @@ DEFAULT_EVAL_CASES = [
 		required_evidence="policy_tradeoff_table.csv",
 	),
 	EvalCase(
+		name="review_capacity_top_1",
+		question="At top 1% review capacity, what are precision and recall?",
+		expected_intent="review_capacity",
+		required_evidence="topk_table.csv",
+	),
+	EvalCase(
+		name="review_capacity_chinese",
+		question="如果只审核 top 3% 交易，召回和命中率是多少？",
+		expected_intent="review_capacity",
+		required_evidence="topk_table.csv",
+	),
+	EvalCase(
 		name="case_explanation",
 		question="Explain transaction 3402093 with reason codes.",
+		expected_intent="explain_case",
+		required_evidence="reason_codes_sample.csv",
+	),
+	EvalCase(
+		name="case_explanation_chinese",
+		question="解释一下交易 3402093 的风险原因码",
 		expected_intent="explain_case",
 		required_evidence="reason_codes_sample.csv",
 	),
@@ -38,6 +56,12 @@ DEFAULT_EVAL_CASES = [
 		question="Is there any PSI or score drift alert?",
 		expected_intent="monitor_drift",
 		required_evidence="psi_report.csv",
+	),
+	EvalCase(
+		name="drift_monitoring_chinese",
+		question="模型最近有没有漂移或者 PSI 告警？",
+		expected_intent="monitor_drift",
+		required_evidence="score_drift.csv",
 	),
 	EvalCase(
 		name="risk_brief",
