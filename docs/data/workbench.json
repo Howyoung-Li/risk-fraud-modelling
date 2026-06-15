@@ -41,7 +41,7 @@
     {
       "question": "Is there any PSI or score drift alert?",
       "intent": "monitor_drift",
-      "answer": "Monitoring found 0 PSI feature alerts. Latest score window mean is 0.0311 with score PSI 0.0000.\nEvidence: artifacts/monitoring/psi_report.csv; artifacts/monitoring/score_drift.csv",
+      "answer": "Monitoring found 0 PSI feature alerts. Latest score window mean is 0.0311 with score PSI 0.0009.\nEvidence: artifacts/monitoring/psi_report.csv; artifacts/monitoring/score_drift.csv",
       "tools_called": [
         "monitor_drift"
       ],
@@ -53,7 +53,7 @@
     {
       "question": "Generate a concise risk monitoring report.",
       "intent": "generate_risk_brief",
-      "answer": "LightGBM is the champion OOT model. Test PR-AUC=0.5703, ROC-AUC=0.8920, KS=0.6304.\nThree-way policy produces approve/manual_review/decline actions. Cost-min threshold reviews 17.04% with precision 15.85%, recall 77.62%, and expected cost 261376.56.\nMonitoring found 0 PSI feature alerts. Latest score window mean is 0.0311 with score PSI 0.0000.\nTransaction 3435413 has score 0.999998. Top positive reason codes are C1 (2.98), V258 (2.16), V45 (1.88).\nEvidence: artifacts/metrics/holdout_metrics.json; artifacts/metrics/topk_table.csv; artifacts/monitoring/psi_report.csv; artifacts/monitoring/score_drift.csv; artifacts/outputs/reason_codes_sample.csv; artifacts/policy/decision_policy_summary.csv; artifacts/policy/policy_tradeoff_table.csv; artifacts/policy/threshold.json",
+      "answer": "LightGBM is the champion OOT model. Test PR-AUC=0.5703, ROC-AUC=0.8920, KS=0.6304.\nThree-way policy produces approve/manual_review/decline actions. Cost-min threshold reviews 17.04% with precision 15.85%, recall 77.62%, and expected cost 261376.56.\nMonitoring found 0 PSI feature alerts. Latest score window mean is 0.0311 with score PSI 0.0009.\nTransaction 3435413 has score 0.999998. Top positive reason codes are C1 (2.98), V258 (2.16), V45 (1.88).\nEvidence: artifacts/metrics/holdout_metrics.json; artifacts/metrics/topk_table.csv; artifacts/monitoring/psi_report.csv; artifacts/monitoring/score_drift.csv; artifacts/outputs/reason_codes_sample.csv; artifacts/policy/decision_policy_summary.csv; artifacts/policy/policy_tradeoff_table.csv; artifacts/policy/threshold.json",
       "tools_called": [
         "generate_risk_brief"
       ],

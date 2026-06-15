@@ -15,12 +15,18 @@ from .utils.io import ensure_dir
 def psi(expected, actual, bins=10, eps=1e-6):
 	expected = np.asarray(expected,dtype=float)
 	actual = np.asarray(actual, dtype=float)
+	expected = expected[np.isfinite(expected)]
+	actual = actual[np.isfinite(actual)]
+	if len(expected) == 0 or len(actual) == 0:
+		return 0.0
 
 	qs = np.linspace(0,1, bins + 1)
 	cuts = np.quantile(expected, qs)
 	cuts = np.unique(cuts)
 	if len(cuts) < 3: # degenerate
 		return 0.0
+	cuts[0] = -np.inf
+	cuts[-1] = np.inf
 	
 	e_hist, _ = np.histogram(expected,bins=cuts)
 	a_hist, _ = np.histogram(actual, bins=cuts)
@@ -32,6 +38,21 @@ def psi(expected, actual, bins=10, eps=1e-6):
 	a = np.clip(a,eps,None)
 
 	return float(np.sum((a - e) * np.log(a/e)))
+
+def fill_with_reference_median(expected, actual):
+	expected = np.asarray(expected, dtype=float)
+	actual = np.asarray(actual, dtype=float)
+	median = np.nanmedian(expected)
+	if not np.isfinite(median):
+		median = 0.0
+	return np.nan_to_num(expected, nan=median), np.nan_to_num(actual, nan=median)
+
+def build_monitor_frame(scored, df, keep_cols, id_col):
+	joined = scored[[id_col, "score"]].merge(df[keep_cols], on=id_col, how="left", validate="one_to_one")
+	joined["time_day"] = pd.to_numeric(joined["time_day"], errors="coerce")
+	joined = joined.dropna(subset=["time_day"]).copy()
+	joined["time_day"] = joined["time_day"].astype(int)
+	return joined
 
 def main():
 	cfg = load_config()
@@ -50,6 +71,8 @@ def main():
 	if not scored_path.exists():
 		raise FileNotFoundError(f"missing: {scored_path}")
 	scored = pd.read_csv(scored_path)
+	ref_scored_path = out_dir/"scored_valid.csv"
+	ref_scored = pd.read_csv(ref_scored_path) if ref_scored_path.exists() else None
 
 	table_path = cfg.processed_dir/"model_table_fe.parquet"
 	df = pd.read_parquet(table_path)
@@ -63,20 +86,15 @@ def main():
 	feat_cols = [c for c in df.columns if c not in drop_cols]
 	numeric_feats = [c for c in feat_cols if is_numeric_dtype(df[c])]
 	numeric_feats = [c for c in numeric_feats if c != "time_day"]
-	psi_thr = 0.25
-	windows = [7,14,30]
-	topk = 30
+	psi_thr = cfg.monitoring.psi_threshold
+	windows = cfg.monitoring.drift_windows_days
+	topk = cfg.monitoring.top_features_for_psi
 
 	# Merge
 	keep_cols = [id_col, "time_day"] + numeric_feats
-	joined = scored[[id_col, "score"]].merge(df[keep_cols], on=id_col, how="left", validate="one_to_one")
+	joined = build_monitor_frame(scored, df, keep_cols, id_col)
 
-	# Enforce time_day numeric scalar and drop missing merges
-	joined["time_day"] = pd.to_numeric(joined["time_day"], errors="coerce")
-	joined = joined.dropna(subset=["time_day"]).copy()
-	joined["time_day"] = joined["time_day"].astype(int)
-
-	# define reference window as earliest window in test set
+	# Use OOT validation as the stable reference when available, then monitor OOT test windows.
 	tmin = int(joined["time_day"].min())
 	tmax = int(joined["time_day"].max())
 
@@ -89,19 +107,29 @@ def main():
 	drift_rows = []
 	psi_rows = []
 
-	ref_start = tmin
-	ref_end = tmin + max(windows)
-	ref = joined[(joined["time_day"] >= ref_start) & (joined["time_day"] < ref_end)].copy()
-	if len(ref) < 1000:
+	if ref_scored is not None:
+		ref = build_monitor_frame(ref_scored, df, keep_cols, id_col)
+		ref_start = int(ref["time_day"].min())
+		ref_end = int(ref["time_day"].max()) + 1
+		ref_source = "scored_valid.csv"
+		actual_start = tmin
+	else:
+		ref_start = tmin
+		ref_end = tmin + max(windows)
+		ref = joined[(joined["time_day"] >= ref_start) & (joined["time_day"] < ref_end)].copy()
 		# fallback: first 10% of data by time_day
-		cutoff = np.quantile(joined["time_day"], 0.1)
-		ref = joined[joined["time_day"] <= cutoff].copy()
+		if len(ref) < 1000:
+			cutoff = np.quantile(joined["time_day"], 0.1)
+			ref = joined[joined["time_day"] <= cutoff].copy()
+			ref_end = int(ref["time_day"].max()) + 1
+		ref_source = "first_test_window"
+		actual_start = ref_end
 		
 	ref_score = ref["score"].to_numpy()
 
 	# For each window size, cuompute PSI on score and on features for later windows
 	for w in windows:
-		start = tmin
+		start = actual_start
 		step = 1
 		while start + w <= tmax + 1:
 			win = joined[(joined["time_day"] >= start) & (joined["time_day"] < start + w)]
@@ -126,8 +154,7 @@ def main():
 				a = win[f].to_numpy()
 				e = ref[f].to_numpy()
 				# handle NaN
-				e = np.nan_to_num(e, nan = np.nanmedian(e))
-				a = np.nan_to_num(a, nan = np.nanmedian(e))
+				e, a = fill_with_reference_median(e, a)
 				p = psi(e, a, bins=10)
 				psi_rows.append({
 					"window_days": w,
@@ -171,11 +198,13 @@ def main():
 
 
 	spec = {
-		"reference_window": {"start_day": int(ref_start), "end_day": int(ref_end), "n": int(len(ref))},
+		"reference_window": {"source": ref_source, "start_day": int(ref_start), "end_day": int(ref_end), "n": int(len(ref))},
+		"actual_window_source": "scored_test.csv",
 		"psi_threshold": psi_thr,
 		"window_days": windows,
 		"top_features_for_psi": topk,
-		"notes": "PSI computed using quantile bins from reference distribution."
+		"score_shift_alert": cfg.monitoring.score_shift_alert,
+		"notes": "PSI uses quantile bins from the reference distribution, with open-ended tails for actual values outside the reference range."
 	}
 	with open(mon_dir/"monitoring_spec.json", "w", encoding="utf-8") as f:
 		json.dump(spec,f,indent=2)

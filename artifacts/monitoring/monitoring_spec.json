@@ -1,9 +1,11 @@
 {
   "reference_window": {
-    "start_day": 152,
-    "end_day": 182,
-    "n": 85827
+    "source": "scored_valid.csv",
+    "start_day": 120,
+    "end_day": 153,
+    "n": 88581
   },
+  "actual_window_source": "scored_test.csv",
   "psi_threshold": 0.25,
   "window_days": [
     7,
@@ -11,5 +13,6 @@
     30
   ],
   "top_features_for_psi": 30,
-  "notes": "PSI computed using quantile bins from reference distribution."
+  "score_shift_alert": true,
+  "notes": "PSI uses quantile bins from the reference distribution, with open-ended tails for actual values outside the reference range."
 }
