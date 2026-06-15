@@ -1,4 +1,5 @@
 const state = {
+  workbench: null,
   charts: [
     ["pr_curve", "PR Curve"],
     ["topk_capture", "Top-K Capture"],
@@ -7,6 +8,36 @@ const state = {
     ["shap_summary", "SHAP Feature Effects"]
   ]
 };
+
+function routeStaticIntent(question) {
+  const q = question.toLowerCase();
+  if (["brief", "report", "summary", "报告", "总结", "复盘"].some(token => q.includes(token))) {
+    return "generate_risk_brief";
+  }
+  if (["shap", "reason", "case", "transaction", "解释", "原因码", "单"].some(token => q.includes(token))) {
+    return "explain_case";
+  }
+  if (["psi", "drift", "monitor", "监控", "漂移", "稳定"].some(token => q.includes(token))) {
+    return "monitor_drift";
+  }
+  if (["top-k", "topk", "precision", "recall", "capacity", "产能", "召回", "命中"].some(token => q.includes(token))) {
+    return "review_capacity";
+  }
+  if (["policy", "threshold", "cost", "decline", "review", "策略", "阈值", "审核", "成本"].some(token => q.includes(token))) {
+    return "policy_simulation";
+  }
+  return "model_performance";
+}
+
+function staticFallbackResponse(question) {
+  const intent = routeStaticIntent(question);
+  const response = state.workbench.agent_responses.find(item => item.intent === intent) || state.workbench.agent_responses[0];
+  return {
+    ...response,
+    question,
+    answer: `${response.answer.split("Evidence:")[0].trim()}\n\nStatic fallback from the deployed GitHub Pages site. Run .venv/bin/python -m scripts.serve_agent_workbench locally for live API answers.\nEvidence: ${response.evidence.join("; ")}`
+  };
+}
 
 function evidenceTags(items) {
   return `<div class="tags">${items.map(item => `<span class="tag">${item}</span>`).join("")}</div>`;
@@ -107,6 +138,21 @@ function renderLiveResponse(response) {
   `;
 }
 
+function renderFallbackResponse(question) {
+  const target = document.querySelector("#agent-live-result");
+  const response = staticFallbackResponse(question);
+  target.innerHTML = `
+    <div class="inline-status">Static fallback mode. Start the local Python server for live API responses.</div>
+    <article class="metric-card live-card">
+      <p class="eyebrow">${response.intent.replaceAll("_", " ")}</p>
+      <h3>${response.question}</h3>
+      <p>${response.answer.split("Evidence:")[0]}</p>
+      ${evidenceTags(response.evidence)}
+      ${traceList(response.trace)}
+    </article>
+  `;
+}
+
 function bindAskForm() {
   const form = document.querySelector("#ask-form");
   const input = document.querySelector("#agent-question");
@@ -121,7 +167,7 @@ function bindAskForm() {
     try {
       renderLiveResponse(await askLiveAgent(question));
     } catch (error) {
-      target.innerHTML = `<div class="inline-status">Local API unavailable. Static evidence remains below.</div>`;
+      renderFallbackResponse(question);
     }
   });
 }
@@ -147,6 +193,7 @@ function loadJson(url) {
 
 async function boot() {
   const data = await loadJson("data/workbench.json");
+  state.workbench = data;
   renderStatus(data);
   renderAgentCards(data);
   renderTrace(data);
