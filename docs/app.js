@@ -65,9 +65,27 @@ function renderEval(data) {
   `).join("");
 }
 
+function loadJson(url) {
+  if (typeof fetch === "function") {
+    return fetch(url).then(response => response.json());
+  }
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.onload = () => {
+      if (request.status >= 200 && request.status < 300) {
+        resolve(JSON.parse(request.responseText));
+      } else {
+        reject(new Error(`HTTP ${request.status}`));
+      }
+    };
+    request.onerror = () => reject(new Error("Network request failed"));
+    request.send();
+  });
+}
+
 async function boot() {
-  const response = await fetch("data/workbench.json");
-  const data = await response.json();
+  const data = await loadJson("data/workbench.json");
   renderStatus(data);
   renderAgentCards(data);
   renderFlow(data);
