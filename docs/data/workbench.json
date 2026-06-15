@@ -1,0 +1,175 @@
+{
+  "title": "Fraud Risk Agent Workbench",
+  "subtitle": "Evidence-bound AI analyst layer over the IEEE-CIS fraud model pipeline.",
+  "agent_responses": [
+    {
+      "question": "What is the OOT model performance?",
+      "intent": "model_performance",
+      "answer": "LightGBM is the champion OOT model. Test PR-AUC=0.5703, ROC-AUC=0.8920, KS=0.6304.\nEvidence: artifacts/metrics/holdout_metrics.json; artifacts/metrics/topk_table.csv",
+      "tools_called": [
+        "model_performance"
+      ],
+      "evidence": [
+        "artifacts/metrics/holdout_metrics.json",
+        "artifacts/metrics/topk_table.csv"
+      ]
+    },
+    {
+      "question": "How should we set review and decline thresholds?",
+      "intent": "policy_simulation",
+      "answer": "Three-way policy produces approve/manual_review/decline actions. Cost-min threshold reviews 17.04% with precision 15.85%, recall 77.62%, and expected cost 261376.56.\nEvidence: artifacts/policy/policy_tradeoff_table.csv; artifacts/policy/decision_policy_summary.csv; artifacts/policy/threshold.json",
+      "tools_called": [
+        "policy_simulation"
+      ],
+      "evidence": [
+        "artifacts/policy/policy_tradeoff_table.csv",
+        "artifacts/policy/decision_policy_summary.csv",
+        "artifacts/policy/threshold.json"
+      ]
+    },
+    {
+      "question": "Explain transaction 3402093 with reason codes.",
+      "intent": "explain_case",
+      "answer": "Transaction 3402093 has score 0.999998. Top positive reason codes are V258 (2.51), C1 (2.32), V45 (1.83).\nEvidence: artifacts/outputs/reason_codes_sample.csv",
+      "tools_called": [
+        "explain_case"
+      ],
+      "evidence": [
+        "artifacts/outputs/reason_codes_sample.csv"
+      ]
+    },
+    {
+      "question": "Is there any PSI or score drift alert?",
+      "intent": "monitor_drift",
+      "answer": "Monitoring found 0 PSI feature alerts. Latest score window mean is 0.0311 with score PSI 0.0000.\nEvidence: artifacts/monitoring/psi_report.csv; artifacts/monitoring/score_drift.csv",
+      "tools_called": [
+        "monitor_drift"
+      ],
+      "evidence": [
+        "artifacts/monitoring/psi_report.csv",
+        "artifacts/monitoring/score_drift.csv"
+      ]
+    },
+    {
+      "question": "Generate a concise risk monitoring report.",
+      "intent": "generate_risk_brief",
+      "answer": "LightGBM is the champion OOT model. Test PR-AUC=0.5703, ROC-AUC=0.8920, KS=0.6304.\nThree-way policy produces approve/manual_review/decline actions. Cost-min threshold reviews 17.04% with precision 15.85%, recall 77.62%, and expected cost 261376.56.\nMonitoring found 0 PSI feature alerts. Latest score window mean is 0.0311 with score PSI 0.0000.\nTransaction 3435413 has score 0.999998. Top positive reason codes are C1 (2.98), V258 (2.16), V45 (1.88).\nEvidence: artifacts/metrics/holdout_metrics.json; artifacts/metrics/topk_table.csv; artifacts/monitoring/psi_report.csv; artifacts/monitoring/score_drift.csv; artifacts/outputs/reason_codes_sample.csv; artifacts/policy/decision_policy_summary.csv; artifacts/policy/policy_tradeoff_table.csv; artifacts/policy/threshold.json",
+      "tools_called": [
+        "generate_risk_brief"
+      ],
+      "evidence": [
+        "artifacts/metrics/holdout_metrics.json",
+        "artifacts/metrics/topk_table.csv",
+        "artifacts/monitoring/psi_report.csv",
+        "artifacts/monitoring/score_drift.csv",
+        "artifacts/outputs/reason_codes_sample.csv",
+        "artifacts/policy/decision_policy_summary.csv",
+        "artifacts/policy/policy_tradeoff_table.csv",
+        "artifacts/policy/threshold.json"
+      ]
+    }
+  ],
+  "eval": {
+    "total_cases": 5,
+    "passed_cases": 5,
+    "pass_rate": 1.0,
+    "cases": [
+      {
+        "name": "model_metrics",
+        "question": "What is the OOT model performance?",
+        "expected_intent": "model_performance",
+        "required_evidence": "holdout_metrics.json",
+        "actual_intent": "model_performance",
+        "tools_called": [
+          "model_performance"
+        ],
+        "evidence": [
+          "artifacts/metrics/holdout_metrics.json",
+          "artifacts/metrics/topk_table.csv"
+        ],
+        "passed": true
+      },
+      {
+        "name": "policy_tradeoff",
+        "question": "How should we set review and decline thresholds?",
+        "expected_intent": "policy_simulation",
+        "required_evidence": "policy_tradeoff_table.csv",
+        "actual_intent": "policy_simulation",
+        "tools_called": [
+          "policy_simulation"
+        ],
+        "evidence": [
+          "artifacts/policy/policy_tradeoff_table.csv",
+          "artifacts/policy/decision_policy_summary.csv",
+          "artifacts/policy/threshold.json"
+        ],
+        "passed": true
+      },
+      {
+        "name": "case_explanation",
+        "question": "Explain transaction 3402093 with reason codes.",
+        "expected_intent": "explain_case",
+        "required_evidence": "reason_codes_sample.csv",
+        "actual_intent": "explain_case",
+        "tools_called": [
+          "explain_case"
+        ],
+        "evidence": [
+          "artifacts/outputs/reason_codes_sample.csv"
+        ],
+        "passed": true
+      },
+      {
+        "name": "drift_monitoring",
+        "question": "Is there any PSI or score drift alert?",
+        "expected_intent": "monitor_drift",
+        "required_evidence": "psi_report.csv",
+        "actual_intent": "monitor_drift",
+        "tools_called": [
+          "monitor_drift"
+        ],
+        "evidence": [
+          "artifacts/monitoring/psi_report.csv",
+          "artifacts/monitoring/score_drift.csv"
+        ],
+        "passed": true
+      },
+      {
+        "name": "risk_brief",
+        "question": "Generate a concise risk monitoring report.",
+        "expected_intent": "generate_risk_brief",
+        "required_evidence": "score_drift.csv",
+        "actual_intent": "generate_risk_brief",
+        "tools_called": [
+          "generate_risk_brief"
+        ],
+        "evidence": [
+          "artifacts/metrics/holdout_metrics.json",
+          "artifacts/metrics/topk_table.csv",
+          "artifacts/monitoring/psi_report.csv",
+          "artifacts/monitoring/score_drift.csv",
+          "artifacts/outputs/reason_codes_sample.csv",
+          "artifacts/policy/decision_policy_summary.csv",
+          "artifacts/policy/policy_tradeoff_table.csv",
+          "artifacts/policy/threshold.json"
+        ],
+        "passed": true
+      }
+    ]
+  },
+  "assets": {
+    "pr_curve": "assets/plots/pr_curve_lightgbm_test.png",
+    "topk_capture": "assets/plots/topk_capture_lightgbm_test.png",
+    "policy_cost": "assets/plots/cost_vs_review.png",
+    "score_drift": "assets/plots/score_drift.png",
+    "shap_summary": "assets/plots/shap_beeswarm_feature_value_red_high_blue_low.png"
+  },
+  "architecture": [
+    "User question",
+    "Intent router",
+    "Risk tool registry",
+    "Model, policy, SHAP, monitoring artifacts",
+    "Evidence-bound answer",
+    "Evaluation harness"
+  ]
+}

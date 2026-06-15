@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fraud Risk Agent Workbench</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">IEEE-CIS Fraud Detection</p>
+      <h1>Fraud Risk Agent Workbench</h1>
+    </div>
+    <nav>
+      <a href="#agent">Agent</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#eval">Harness</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">AI risk analyst layer</p>
+        <h2>Tool-calling fraud investigation over model, policy, SHAP, and monitoring artifacts.</h2>
+        <p>The workbench turns the existing fraud model pipeline into an evidence-bound agent demo: route questions, call deterministic tools, cite artifacts, and test behavior with an eval harness.</p>
+      </div>
+      <div class="status-panel" id="status-panel">
+        <span>Loading agent evidence...</span>
+      </div>
+    </section>
+
+    <section class="metrics-grid" id="agent"></section>
+
+    <section class="section-head">
+      <div>
+        <p class="eyebrow">Architecture</p>
+        <h2>From question to cited answer</h2>
+      </div>
+    </section>
+    <section class="flow" id="flow"></section>
+
+    <section class="section-head" id="evidence">
+      <div>
+        <p class="eyebrow">Evidence views</p>
+        <h2>Model, policy, explainability, and drift</h2>
+      </div>
+    </section>
+    <section class="chart-grid" id="charts"></section>
+
+    <section class="section-head" id="eval">
+      <div>
+        <p class="eyebrow">Eval harness</p>
+        <h2>Checks routing, tool use, and citation discipline</h2>
+      </div>
+    </section>
+    <section class="eval-table-wrap">
+      <table id="eval-table">
+        <thead>
+          <tr>
+            <th>Case</th>
+            <th>Expected</th>
+            <th>Actual</th>
+            <th>Evidence</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
